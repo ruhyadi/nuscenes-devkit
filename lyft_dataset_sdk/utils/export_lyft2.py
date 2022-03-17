@@ -40,7 +40,7 @@ from pyquaternion import Quaternion
 from tqdm import tqdm
 
 
-class LyftConverter:
+class KittiConverter:
     def __init__(self, store_dir: str = "~/lyft_kitti/train/"):
         """
 
@@ -53,12 +53,11 @@ class LyftConverter:
         if not self.store_dir.is_dir():
             self.store_dir.mkdir(parents=True)
 
-    def lyft_to_kitti(
+    def nuscenes_gt_to_kitti(
         self,
         lyft_dataroot: str,
         table_folder: str,
         lidar_name: str = "LIDAR_TOP",
-        back_cameras: bool = True,
         front_only: bool = False,
         parallel_n_jobs: int = 4,
         samples_count: Optional[int] = None,
@@ -80,7 +79,6 @@ class LyftConverter:
         self.table_folder = table_folder
         self.lidar_name = lidar_name
         self.front_only = front_only
-        self.back_cameras = back_cameras
         self.samples_count = samples_count
         self.parallel_n_jobs = parallel_n_jobs
 
@@ -105,11 +103,11 @@ class LyftConverter:
             ]
 
         # Create output folders.
-        self.label_folder = self.store_dir.joinpath("label_2")
+        self.label_folder = self.store_dir.joinpath("label")
         self.calib_folder = self.store_dir.joinpath("calib")
-        # self.image_folder = self.store_dir.joinpath("image_2")
-        # self.lidar_folder = self.store_dir.joinpath("velodyne")
-        for folder in [self.label_folder, self.calib_folder]:
+        self.image_folder = self.store_dir.joinpath("image")
+        self.lidar_folder = self.store_dir.joinpath("velodyne")
+        for folder in [self.label_folder, self.calib_folder, self.image_folder, self.lidar_folder]:
             if not folder.is_dir():
                 folder.mkdir(parents=True)
 
@@ -189,7 +187,6 @@ class LyftConverter:
             # filename_cam_full = sd_record_cam["filename"]
             # filename_lid_full = sd_record_lid["filename"]
 
-            # DONT CONVERT LYFT IMAGE TO KITTI IMAGE
             # # Convert image (jpg to png).
             # src_im_path = self.lyft_ds.data_path.joinpath(filename_cam_full)
             # dst_im_path = self.image_folder.joinpath(f"{token_to_write}.png")
@@ -197,7 +194,6 @@ class LyftConverter:
             #     im = Image.open(src_im_path)
             #     im.save(dst_im_path, "PNG")
 
-            # DONT CONVERT LIDAR
             # # Convert lidar.
             # # Note that we are only using a single sweep, instead of the commonly used n sweeps.
             # src_lid_path = self.lyft_ds.data_path.joinpath(filename_lid_full)
@@ -338,4 +334,4 @@ class LyftConverter:
 
 
 if __name__ == "__main__":
-    fire.Fire(LyftConverter)
+    fire.Fire(KittiConverter)
